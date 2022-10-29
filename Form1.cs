@@ -25,12 +25,13 @@ namespace _2dRaycastThing
         double[] xs;
         double[] ys;
 
-        int fov = 60;
-        List<PointF> pnts = new List<PointF>();
+        int fov = 110;
+        PointF[] pnts;
 
         public Form1()
         {
-            PointF[] points = { new PointF(100, 0), new PointF(0, 150), new PointF(200, 150)};
+            pnts = new PointF[fov + 1];
+            PointF[] points = { new PointF(110, 10), new PointF(10, 160), new PointF(210, 160)};
             objects.Add(points);
             xs = new double[fov];
             for (double i = 0; i < fov; i++)
@@ -53,12 +54,12 @@ namespace _2dRaycastThing
             angle = util.Angle(originalLocation, location);
             if (locMove)
             {
-                pnts = util.multicast(fov, 150f, originalLocation, angle * -1, objects.ToArray());
+                pnts = util.multicast(fov, 200f, originalLocation, angle * -1, objects.ToArray());
                 rayTime.Plot.Clear();
                 util.NoiseReduction(ref util.multicastTime,100);
                 rayTime.Plot.AddScatter(xs, util.multicastTime);
                 rayTime.Refresh();
-                pnts.Add(originalLocation);
+                pnts[pnts.Length-1] = originalLocation;
             }
             this.Refresh();
             GC.Collect();
@@ -83,7 +84,6 @@ namespace _2dRaycastThing
                 {
                     
                     e.Graphics.DrawPolygon(Pens.Green, pnts.ToArray());
-                    e.Graphics.DrawString(pnts.Count.ToString(), SystemFonts.DefaultFont, Brushes.Black, location);
                 }
             }
             foreach (PointF[] obj in objects)

@@ -41,19 +41,19 @@ namespace _2dRaycastThing
             return isInside;
         }
 
-        public static List<PointF> multicast(int fov, float range, PointF location, double angle, PointF[][] objects, float precision=0.1f)
+        public static PointF[] multicast(int fov, float range, PointF location, double angle, PointF[][] objects, float precision=0.1f)
         {
             Stopwatch sw = new Stopwatch();
             double ang;
             multicastTime = new double[fov];
-            List<PointF> arr = new List<PointF>();
+            PointF[] arr = new PointF[fov];
             float f = (fov / 2) * -1;
             for (int i = 0; i < fov; i++)
             {
                 sw.Start();
                 ang = angle + (double)f;
                 PointF pnt = raycast(objects,location, ang, range, precision);
-                arr.Add(pnt);
+                arr[i] = pnt;
                 multicastTime[i] = sw.Elapsed.TotalMilliseconds;
                 sw.Reset();
                 sw.Stop();
