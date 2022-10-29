@@ -4,11 +4,14 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Drawing;
+using System.Diagnostics;
 
 namespace _2dRaycastThing
 {
     public static class util
     {
+        public static double[] multicastTime;
+
         const double Rad2Deg = 180.0 / Math.PI;
         const double Deg2Rad = Math.PI / 180.0;
         public static double Angle(PointF start, PointF end)
@@ -40,14 +43,20 @@ namespace _2dRaycastThing
 
         public static List<PointF> multicast(int fov, float range, PointF location, double angle, PointF[][] objects, float precision=0.1f)
         {
+            Stopwatch sw = new Stopwatch();
             double ang;
+            multicastTime = new double[fov];
             List<PointF> arr = new List<PointF>();
             float f = (fov / 2) * -1;
             for (int i = 0; i < fov; i++)
             {
+                sw.Start();
                 ang = angle + (double)f;
                 PointF pnt = raycast(objects,location, ang, range, precision);
                 arr.Add(pnt);
+                multicastTime[i] = sw.Elapsed.TotalMilliseconds;
+                sw.Reset();
+                sw.Stop();
                 f++;
             }
             return arr;
@@ -68,6 +77,28 @@ namespace _2dRaycastThing
                 }
             }
             return point;
+        }
+
+        public static void NoiseReduction(ref double[] src, int severity = 1)
+        {
+            for (int i = 1; i < src.Length; i++)
+            {
+                //---------------------------------------------------------------avg
+                var start = (i - severity > 0 ? i - severity : 0);
+                var end = (i + severity < src.Length ? i + severity : src.Length);
+
+                double sum = 0;
+
+                for (int j = start; j < end; j++)
+                {
+                    sum += src[j];
+                }
+
+                var avg = sum / (end - start);
+                //---------------------------------------------------------------
+                src[i] = avg;
+
+            }
         }
     }
     

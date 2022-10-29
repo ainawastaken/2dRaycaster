@@ -22,6 +22,9 @@ namespace _2dRaycastThing
 
         bool locMove;
 
+        double[] xs;
+        double[] ys;
+
         int fov = 60;
         List<PointF> pnts = new List<PointF>();
 
@@ -29,12 +32,19 @@ namespace _2dRaycastThing
         {
             PointF[] points = { new PointF(100, 0), new PointF(0, 150), new PointF(200, 150)};
             objects.Add(points);
+            xs = new double[fov];
+            for (double i = 0; i < fov; i++)
+            {
+                xs[(int)i] = i;
+            }
+
             InitializeComponent();
         }
 
         private void Form1_Load(object sender, EventArgs e)
         {
             this.DoubleBuffered = true;
+            rayTime.Plot.Title("Ray time (ms)");
         }
 
         private void Form1_MouseMove(object sender, MouseEventArgs e)
@@ -43,7 +53,11 @@ namespace _2dRaycastThing
             angle = util.Angle(originalLocation, location);
             if (locMove)
             {
-                pnts = util.multicast(fov, 150f, originalLocation, angle*-1, objects.ToArray());
+                pnts = util.multicast(fov, 150f, originalLocation, angle * -1, objects.ToArray());
+                rayTime.Plot.Clear();
+                util.NoiseReduction(ref util.multicastTime,100);
+                rayTime.Plot.AddScatter(xs, util.multicastTime);
+                rayTime.Refresh();
                 pnts.Add(originalLocation);
             }
             this.Refresh();
@@ -52,6 +66,7 @@ namespace _2dRaycastThing
 
         private void Form1_Paint(object sender, PaintEventArgs e)
         {
+            e.Graphics.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
             if (buttonHeld)
             {
                 e.Graphics.DrawLine(Pens.Black, location, originalLocation);
@@ -59,14 +74,16 @@ namespace _2dRaycastThing
                 e.Graphics.DrawString(Math.Round(angle).ToString(),SystemFonts.DefaultFont,Brushes.Black, originalLocation);
                 for (int i = 0; i < fov; i++)
                 {
-                    e.Graphics.DrawLine(Pens.Green, pnts[i], originalLocation);
+                    if (visRays_cb1.Checked)
+                    {
+                        e.Graphics.DrawLine(Pens.Green, pnts[i], originalLocation);
+                    }
                 }
                 if (locMove)
                 {
                     
                     e.Graphics.DrawPolygon(Pens.Green, pnts.ToArray());
                     e.Graphics.DrawString(pnts.Count.ToString(), SystemFonts.DefaultFont, Brushes.Black, location);
-                    e.Graphics.DrawString(string.Join(",\n", pnts), SystemFonts.DefaultFont, Brushes.Black, Point.Empty);
                 }
             }
             foreach (PointF[] obj in objects)
