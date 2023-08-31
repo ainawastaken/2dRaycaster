@@ -25,7 +25,7 @@ namespace _2dRaycastThing
         double[] xs;
         double[] ys;
 
-        int fov = 110;
+        int fov = 180;
         PointF[] pnts;
 
         public Form1()
